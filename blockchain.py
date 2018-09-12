@@ -1,5 +1,7 @@
 # Initialize our blockchain list
 blockchain = []
+open_transactions = []
+owner = 'Severo'
 
 
 def get_last_blockchain_value():
@@ -9,23 +11,33 @@ def get_last_blockchain_value():
     return blockchain[-1]
 
 
-def add_transaction(transaction_amount, last_transaction):
+def add_transaction(recipient, sender=owner, amount=1.0):
     """ Append a new value and the last blockchain at the blockchain.
 
     Arguments:
-        :transaction_amount: The amount to be added
-        :last_transaction: The old blockchain transaction (default [1])
+        :sender: The sender of the coins
+        :recipient: The recipient of the coins
+        :amount: The amount of coins sent with the transaction (default = 1.0)
     """
-    if last_transaction is None:
-        last_transaction = [1]
+    transaction = {
+        'sender': sender,
+        'recipient': recipient,
+        'amount': amount
+    }
 
-    blockchain.append([last_transaction, transaction_amount])
+    open_transactions.append(transaction)
+
+
+def mine_block():
+    pass
 
 
 def get_transaction_value():
     """ Asks the user to the amount of the transaction
     and returns as a float """
-    return float(input('Your transaction amount, please: '))
+    tx_recipient = input('Enter the recipient of the transaction: ')
+    tx_amount = float(input('Your transaction amount, please: '))
+    return tx_recipient, tx_amount
 
 
 def get_user_choice():
@@ -69,8 +81,10 @@ while waiting_for_input:
     user_choice = get_user_choice()
 
     if user_choice == '1':
-        tx_amount = get_transaction_value()
-        add_transaction(tx_amount, get_last_blockchain_value())
+        tx_data = get_transaction_value()
+        tx_recipient, tx_amount = tx_data
+        add_transaction(tx_recipient, amount=tx_amount)
+        print(open_transactions)
 
     elif user_choice == '2':
         print_blockchain_elements()
