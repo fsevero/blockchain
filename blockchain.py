@@ -181,6 +181,6 @@ while waiting_for_input:
         print('Invalid chain!!!')
         break
 
-    print(get_balance(owner))
+    print('Balance of {}: {:6.2f}'.format(owner, get_balance(owner)))
 else:
     print('Bye!')
