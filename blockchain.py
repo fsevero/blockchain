@@ -1,6 +1,7 @@
 from functools import reduce
 import hashlib as hl
 import json
+from collections import OrderedDict
 
 
 MINING_REWARD = 10.0
@@ -8,7 +9,8 @@ MINING_REWARD = 10.0
 genesis_block = {
     'previous_hash': '',
     'index': 0,
-    'transactions': []
+    'transactions': [],
+    'proof': 100
 }
 blockchain = [genesis_block]
 open_transactions = []
@@ -16,8 +18,23 @@ owner = 'Severo'
 participants = {owner}
 
 
+def valid_proof(transactions, last_hash, proof):
+    guess = (str(transactions) + str(last_hash) + str(proof)).encode()
+    guess_hash = hl.sha256(guess).hexdigest()
+    return guess_hash[0:4] == '0000'
+
+
+def proof_of_work():
+    last_block = blockchain[-1]
+    last_hash = hash_block(last_block)
+    proof = 0
+    while not valid_proof(open_transactions, last_hash, proof):
+        proof += 1
+    return proof
+
+
 def hash_block(block):
-    return hl.sha256(json.dumps(block).encode()).hexdigest()
+    return hl.sha256(json.dumps(block, sort_keys=True).encode()).hexdigest()
 
 
 def get_balance(participant):
@@ -52,11 +69,11 @@ def add_transaction(recipient, sender=owner, amount=1.0):
         :recipient: The recipient of the coins
         :amount: The amount of coins sent with the transaction (default = 1.0)
     """
-    transaction = {
-        'sender': sender,
-        'recipient': recipient,
-        'amount': amount
-    }
+    transaction = OrderedDict([
+        ('sender', sender),
+        ('recipient', recipient),
+        ('amount', amount)
+    ])
 
     if not verify_transaction(transaction):
         return False
@@ -70,17 +87,19 @@ def add_transaction(recipient, sender=owner, amount=1.0):
 def mine_block():
     last_block = blockchain[-1]
     hashed_block = hash_block(last_block)
-    reward_transaction = {
-        'sender': 'MINING',
-        'recipient': owner,
-        'amount': MINING_REWARD
-    }
+    proof = proof_of_work()
+    reward_transaction = OrderedDict([
+        ('sender', 'MINING'),
+        ('recipient', owner),
+        ('amount', MINING_REWARD)
+    ])
     copied_transactions = open_transactions[:]
     copied_transactions.append(reward_transaction)
     block = {
         'previous_hash': hashed_block,
         'index': len(blockchain),
-        'transactions': copied_transactions
+        'transactions': copied_transactions,
+        'proof': proof
     }
 
     blockchain.append(block)
@@ -115,6 +134,9 @@ def verify_chain():
             continue
 
         if block['previous_hash'] != hash_block(blockchain[index - 1]):
+            return False
+
+        if not valid_proof(block['transactions'][:-1], block['previous_hash'], block['proof']):
             return False
 
     return True
