@@ -106,4 +106,4 @@ venv.bak/
 # Ignore .idea
 .idea
 .vscode
-blockchain.txt
+blockchain
