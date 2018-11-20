@@ -13,7 +13,6 @@ genesis_block = Block(0, '', [], 100, 0)
 blockchain = [genesis_block]
 open_transactions = []
 owner = 'Severo'
-participants = {owner}
 
 
 # def save_data():
@@ -124,8 +123,6 @@ def add_transaction(recipient, sender=owner, amount=1.0):
         return False
 
     open_transactions.append(transaction)
-    participants.add(sender)
-    participants.add(recipient)
     save_data()
     return True
 
@@ -190,8 +187,7 @@ while waiting_for_input:
     print('1: Add a new blockchain transaction')
     print('2: Mine a new block')
     print('3: Output the blockchain blocks')
-    print('4: Output participants')
-    print('5: Check transaction validity')
+    print('4: Check transaction validity')
     print('q: QUIT')
     user_choice = get_user_choice()
 
@@ -212,9 +208,6 @@ while waiting_for_input:
         print_blockchain_elements()
 
     elif user_choice == '4':
-        print(participants)
-
-    elif user_choice == '5':
         if verify_transactions():
             print('All transactions are valid')
         else:
