@@ -52,20 +52,29 @@ class Node:
             if user_choice == '1':
                 tx_data = self.get_transaction_value()
                 tx_recipient, tx_amount = tx_data
-                if self.blockchain.add_transaction(tx_recipient, self.wallet.public_key, amount=tx_amount):
+
+                signature = self.wallet.sign_transaction(self.wallet.public_key,
+                                                         tx_recipient,
+                                                         tx_amount)
+
+                if self.blockchain.add_transaction(tx_recipient,
+                                                   self.wallet.public_key,
+                                                   signature,
+                                                   amount=tx_amount):
                     print('Added transaction')
                 else:
                     print('Transaction failed')
 
             elif user_choice == '2':
                 if not self.blockchain.mine_block():
-                    print('Mining failed. Got no Wallet?')
+                    print('Mining failed')
 
             elif user_choice == '3':
                 self.print_blockchain_elements()
 
             elif user_choice == '4':
-                if Verification.verify_transactions(self.blockchain.open_transactions, self.blockchain.get_balance):
+                if Verification.verify_transactions(self.blockchain.open_transactions,
+                                                    self.blockchain.get_balance):
                     print('All transactions are valid')
                 else:
                     print('There are invalid transactions')
