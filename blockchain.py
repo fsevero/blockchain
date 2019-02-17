@@ -108,6 +108,9 @@ class Blockchain:
             :recipient: The recipient of the coins
             :amount: The amount of coins sent with the transaction (default = 1.0)
         """
+        if not self.hosting_node:
+            return False
+
         transaction = Transaction(sender, recipient, amount)
 
         if not Verification.verify_transaction(transaction, self.get_balance):
@@ -118,6 +121,9 @@ class Blockchain:
         return True
 
     def mine_block(self):
+        if not self.hosting_node:
+            return False
+
         last_block = self.__chain[-1]
         hashed_block = hash_block(last_block)
         proof = self.proof_of_work()

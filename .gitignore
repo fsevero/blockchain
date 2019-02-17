@@ -103,8 +103,11 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-# Ignore .idea
+# Ignore editor configurations
 .idea
 .vscode
+
+# Project specific ignores
 blockchain.txt
 blockchain
+wallet.txt
