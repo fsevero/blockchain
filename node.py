@@ -152,5 +152,11 @@ def get_chain():
         dict_blocks['transactions'] = [tx.__dict__.copy() for tx in dict_blocks['transactions']]
     return jsonify(dict_chain), 200
 
+@app.route('/open-transaction', methods=['GET'])
+def get_open_transactions():
+    transactions = blockchain.open_transactions
+    dict_transactions = [tx.__dict__ for tx in transactions]
+    return jsonify(dict_transactions), 200
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port='5000')
