@@ -21,6 +21,8 @@ class Blockchain:
 
         self.load_data()
 
+        self.__peer_nodes = set()
+
     @property
     def chain(self):
         return self.__chain[:]
@@ -48,12 +50,13 @@ class Blockchain:
                     updated_blockchain.append(updated_block)
                 self.__chain = updated_blockchain
 
-                open_transactions = json.loads(file_content[1])
+                open_transactions = json.loads(file_content[1][:-1])
                 updated_transactions = []
                 for tx in open_transactions:
                     updated_transaction = Transaction(tx['sender'], tx['recipient'], tx['signature'], tx['amount'])
                     updated_transactions.append(updated_transaction)
                 self.__open_transactions = updated_transactions
+                self.__peer_nodes = set(json.loads(file_content[2]))
         except (IOError, IndexError):
             pass
         finally:
@@ -73,6 +76,8 @@ class Blockchain:
             f.write('\n')
             savable_transaction = [tx.__dict__ for tx in self.__open_transactions]
             f.write(json.dumps(savable_transaction))
+            f.write('\n')
+            f.write(json.dumps(list(self.__peer_nodes)))
 
     def proof_of_work(self):
         last_block = self.__chain[-1]
@@ -146,3 +151,21 @@ class Blockchain:
         self.__open_transactions = []
         self.save_data()
         return block
+
+    def add_peer_node(self, node):
+        """adds a new node to the peer node set.
+
+        Arguments:
+            :node: The node URL which should be added.
+        """
+        self.__peer_nodes.add(node)
+        self.save_data()
+
+    def remove_peer_node(self, node):
+        """removes a new node from the peer node set.
+
+        Arguments:
+            :node: The node URL which should be removed.
+        """
+        self.__peer_nodes.discard(node)
+        self.save_data()
